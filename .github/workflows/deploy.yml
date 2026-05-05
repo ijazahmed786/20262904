@@ -1,19 +1,58 @@
-- name: Deploy to VM
-  run: |
-    ssh -o StrictHostKeyChecking=no root123@20.205.19.38 << 'EOF'
+iname: Deploy to Azure VM (Apache Web)
 
-      # Clone repo if not exists
-      if [ ! -d "/home/root123/20262904" ]; then
-        git clone https://github.com/ijazahmed786/20262904.git /home/root123/20262904
-      fi
+on:
+  push:
+    branches:
+      - main
 
-      cd /home/root123/20262904
-      git pull origin main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      echo "Copying files to /var/www/html"
+    steps:
+      # 1. Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      sudo cp -r * /var/www/html/
+      # 2. Setup SSH key
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 20.205.19.38 >> ~/.ssh/known_hosts
 
-      echo "Deployment completed"
+      # 3. Deploy to Azure VM
+      - name: Deploy Files to /var/www/html
+        run: |
+          ssh root123@20.205.19.38 << 'EOF'
 
-    EOF
+            echo "Connecting to server..."
+
+            # Go to home directory
+            cd /home/root123
+
+            # Clone repo if not exists
+            if [ ! -d "20262904" ]; then
+              git clone https://github.com/ijazahmed786/20262904.git
+            fi
+
+            cd 20262904
+
+            # Pull latest code
+            git pull origin main
+
+            echo "Deploying to Apache directory..."
+
+            # Clean old web files
+            sudo rm -rf /var/www/html/*
+
+            # Copy new files (index.html etc.)
+            sudo cp -r * /var/www/html/
+
+            # Fix permissions
+            sudo chmod -R 755 /var/www/html
+
+            echo "Deployment successful!"
+
+          EOF
