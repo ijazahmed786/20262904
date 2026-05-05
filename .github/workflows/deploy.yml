@@ -22,6 +22,12 @@ jobs:
       - name: Deploy to VM
         run: |
           ssh -o StrictHostKeyChecking=no root123@20.205.19.38 << 'EOF'
-            cd /home/root123
+            if [ ! -d "/home/root123/20262904" ]; then
+              git clone https://github.com/ijazahmed786/20262904.git /home/root123/20262904
+            fi
+
+            cd /home/root123/20262904
             git pull origin main
+
+            echo "Deployment completed"
           EOF
