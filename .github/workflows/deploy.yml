@@ -1,33 +1,19 @@
-name: Deploy to Azure VM
+- name: Deploy to VM
+  run: |
+    ssh -o StrictHostKeyChecking=no root123@20.205.19.38 << 'EOF'
 
-on:
-  push:
-    branches:
-      - main
+      # Clone repo if not exists
+      if [ ! -d "/home/root123/20262904" ]; then
+        git clone https://github.com/ijazahmed786/20262904.git /home/root123/20262904
+      fi
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      cd /home/root123/20262904
+      git pull origin main
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      echo "Copying files to /var/www/html"
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+      sudo cp -r * /var/www/html/
 
-      - name: Deploy to VM
-        run: |
-          ssh -o StrictHostKeyChecking=no root123@20.205.19.38 << 'EOF'
-            if [ ! -d "/home/root123/20262904" ]; then
-              git clone https://github.com/ijazahmed786/20262904.git /home/root123/20262904
-            fi
+      echo "Deployment completed"
 
-            cd /home/root123/20262904
-            git pull origin main
-
-            echo "Deployment completed"
-          EOF
+    EOF
