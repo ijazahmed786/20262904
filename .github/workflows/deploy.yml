@@ -1,4 +1,4 @@
-iname: Deploy to Azure VM (Apache Web)
+name: Deploy to Azure VM (Apache Web)
 
 on:
   push:
