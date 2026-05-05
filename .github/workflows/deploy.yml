@@ -45,13 +45,13 @@ jobs:
             echo "Deploying to Apache directory..."
 
             # Clean old web files
-            sudo rm -rf /var/www/html/*
+             rm -rf /var/www/html/*
 
             # Copy new files (index.html etc.)
-            sudo cp -r * /var/www/html/
+             cp -r * /var/www/html/
 
             # Fix permissions
-            sudo chmod -R 755 /var/www/html
+             chmod -R 755 /var/www/html
 
             echo "Deployment successful!"
 
